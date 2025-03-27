@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-4 mb-4">Akademik Makale Yönetim Sistemi</h1>
+            <p class="lead mb-5">Makalenizi gönderin, takip edin ve değerlendirme sürecini yönetin.</p>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Yazar Paneli</h5>
+                            <p class="card-text">Makalenizi gönderin ve durumunu takip edin.</p>
+                            <a href="{{ url_for('submit_paper') }}" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> Makale Gönder
+                            </a>
+                            <a href="{{ url_for('track_paper') }}" class="btn btn-info mt-2">
+                                <i class="fas fa-search"></i> Makale Sorgula
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Editör Paneli</h5>
+                            <p class="card-text">Makaleleri yönetin ve değerlendirme sürecini takip edin.</p>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-success">
+                                <i class="fas fa-tasks"></i> Editör Paneli
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Hakem Paneli</h5>
+                            <p class="card-text">Size atanan makaleleri değerlendirin ve görüşlerinizi bildirin.</p>
+                            <a href="{{ url_for('reviewer_dashboard') }}" class="btn btn-warning">
+                                <i class="fas fa-clipboard-check"></i> Hakem Paneli
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

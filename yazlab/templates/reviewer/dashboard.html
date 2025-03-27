@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Hakem Paneli</h2>
+    
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Değerlendirilecek Makaleler</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Takip No</th>
+                                    <th>Başlık</th>
+                                    <th>Alan</th>
+                                    <th>Durum</th>
+                                    <th>Atanma Tarihi</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for paper in assigned_papers %}
+                                <tr>
+                                    <td>{{ paper.tracking_number }}</td>
+                                    <td>{{ paper.title }}</td>
+                                    <td>{{ paper.field or 'Belirlenmedi' }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if paper.status == 'accepted' else 'warning' if paper.status == 'under_review' else 'danger' if paper.status == 'rejected' else 'secondary' }}">
+                                            {% if paper.status == 'accepted' %}
+                                                Kabul Edildi
+                                            {% elif paper.status == 'under_review' %}
+                                                Değerlendiriliyor
+                                            {% elif paper.status == 'rejected' %}
+                                                Reddedildi
+                                            {% elif paper.status == 'revision_required' %}
+                                                Revizyon Gerekli
+                                            {% else %}
+                                                Beklemede
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% for assignment in paper.assigned_reviewers %}
+                                            {% if assignment.reviewer_id == current_user.id %}
+                                                {{ assignment.assigned_date.strftime('%Y-%m-%d') }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('reviewer_paper', paper_id=paper.id) }}" class="btn btn-sm btn-primary">Değerlendir</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Tamamlanan Değerlendirmeler</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Takip No</th>
+                                    <th>Başlık</th>
+                                    <th>Puan</th>
+                                    <th>Değerlendirme Tarihi</th>
+                                    <th>Durum</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for review in completed_reviews %}
+                                <tr>
+                                    <td>{{ review.paper.tracking_number }}</td>
+                                    <td>{{ review.paper.title }}</td>
+                                    <td>{{ review.rating }}/5</td>
+                                    <td>{{ review.submission_date.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if review.is_final else 'warning' }}">
+                                            {{ 'Onaylandı' if review.is_final else 'Beklemede' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

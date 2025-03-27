@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Hakem Atama</h2>
+                <a href="{{ url_for('paper_detail', paper_id=paper.id) }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Makaleye Dön
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ paper.title }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-4">
+                            <label class="form-label">Hakem Seçin:</label>
+                            <select name="reviewer_id" class="form-select" required>
+                                <option value="">Hakem seçin...</option>
+                                {% for reviewer in reviewers %}
+                                <option value="{{ reviewer.id }}">{{ reviewer.first_name }} {{ reviewer.last_name }} ({{ reviewer.expertise_areas|map(attribute='sub_category')|join(', ') }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-user-plus"></i> Hakem Ata
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

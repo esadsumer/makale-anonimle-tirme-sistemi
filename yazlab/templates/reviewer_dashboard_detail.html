@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Hakem Paneli - {{ reviewer.first_name }} {{ reviewer.last_name }}</h2>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Bekleyen Değerlendirmeler</h5>
+                </div>
+                <div class="card-body">
+                    {% if pending_reviews %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Takip No</th>
+                                        <th>Başlık</th>
+                                        <th>Durum</th>
+                                        <th>İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for paper in pending_reviews %}
+                                    <tr>
+                                        <td>{{ paper.tracking_number }}</td>
+                                        <td>{{ paper.title }}</td>
+                                        <td>{{ paper.status }}</td>
+                                        <td>
+                                            <a href="{{ url_for('review_paper', paper_id=paper.id) }}" 
+                                               class="btn btn-primary btn-sm">
+                                                Değerlendir
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Bekleyen değerlendirme bulunmuyor.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Tamamlanan Değerlendirmeler</h5>
+                </div>
+                <div class="card-body">
+                    {% if completed_reviews %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Takip No</th>
+                                        <th>Başlık</th>
+                                        <th>Durum</th>
+                                        <th>İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for paper in completed_reviews %}
+                                    <tr>
+                                        <td>{{ paper.tracking_number }}</td>
+                                        <td>{{ paper.title }}</td>
+                                        <td>{{ paper.status }}</td>
+                                        <td>
+                                            <a href="{{ url_for('review_paper', paper_id=paper.id) }}" 
+                                               class="btn btn-info btn-sm">
+                                                Görüntüle
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Tamamlanan değerlendirme bulunmuyor.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="{{ url_for('reviewer_dashboard') }}" class="btn btn-secondary">Hakem Listesine Dön</a>
+    </div>
+</div>
+{% endblock %} 

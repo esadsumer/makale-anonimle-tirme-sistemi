@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2>Makale Log Kayıtları</h2>
+            <p class="text-muted">Takip No: {{ paper.tracking_number }}</p>
+            <p class="text-muted">Başlık: {{ paper.title }}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">İşlem Geçmişi</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for log in paper.log_entries|sort(attribute='timestamp', reverse=true) %}
+                        <div class="timeline-item">
+                            <div class="timeline-date">
+                                {{ log.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                            </div>
+                            <div class="timeline-content">
+                                <h6>{{ log.action }}</h6>
+                                {% if log.details %}
+                                <p class="mb-0">{{ log.details }}</p>
+                                {% endif %}
+                                {% if log.user_id %}
+                                <small class="text-muted">İşlemi Yapan: {{ log.user.username }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 20px;
+}
+
+.timeline-item:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-item:after {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #0d6efd;
+}
+
+.timeline-date {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.timeline-content h6 {
+    margin-bottom: 10px;
+    color: #0d6efd;
+}
+</style>
+{% endblock %} 

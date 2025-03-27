@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Makale Takip</h2>
+    
+    {% if not paper %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Makale Sorgula</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('track_paper') }}">
+                {{ form.hidden_tag() }}
+                <div class="form-group mb-3">
+                    <label>Takip Numarası</label>
+                    {{ form.tracking_id(class="form-control") }}
+                    {% if form.tracking_id.errors %}
+                        {% for error in form.tracking_id.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="form-group mb-3">
+                    <label>E-posta Adresi</label>
+                    {{ form.email(class="form-control") }}
+                    {% if form.email.errors %}
+                        {% for error in form.email.errors %}
+                            <small class="text-danger">{{ error }}</small>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                {{ form.submit(class="btn btn-primary") }}
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Makale Bilgileri</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Takip No:</strong> {{ paper.tracking_number }}</p>
+                    <p><strong>Başlık:</strong> {{ paper.title }}</p>
+                    <p><strong>Durum:</strong> {{ paper.status }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Gönderim Tarihi:</strong> {{ paper.submission_date.strftime('%d.%m.%Y') }}</p>
+                    <p><strong>Son Güncelleme:</strong> {{ paper.revision_date.strftime('%d.%m.%Y') if paper.revision_date else 'Yok' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Değerlendirme Süreci</h5>
+        </div>
+        <div class="card-body">
+            {% if paper.reviews %}
+                {% for review in paper.reviews %}
+                <div class="review-item mb-4">
+                    <h6>Hakem Değerlendirmesi</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Teknik Kalite:</th>
+                                <td>{{ review.technical_quality }}/5</td>
+                            </tr>
+                            <tr>
+                                <th>Metodoloji:</th>
+                                <td>{{ review.methodology }}/5</td>
+                            </tr>
+                            <tr>
+                                <th>Katkı:</th>
+                                <td>{{ review.contribution }}/5</td>
+                            </tr>
+                            <tr>
+                                <th>Sunum:</th>
+                                <td>{{ review.presentation }}/5</td>
+                            </tr>
+                            <tr>
+                                <th>Öneri:</th>
+                                <td>{{ review.recommendation }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="mt-2">
+                        <strong>Genel Değerlendirme:</strong>
+                        <p>{{ review.comments }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">Henüz değerlendirme yapılmadı.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Mesaj Gönder</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('send_message') }}">
+                <input type="hidden" name="tracking_number" value="{{ paper.tracking_number }}">
+                <input type="hidden" name="email" value="{{ paper.submitter_email }}">
+                <div class="form-group">
+                    <label>Mesajınız</label>
+                    <textarea name="message" class="form-control" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Gönder</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Mesaj Geçmişi</h5>
+        </div>
+        <div class="card-body">
+            {% if paper.messages %}
+                {% for message in paper.messages %}
+                <div class="message-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ message.sender_email }}</strong>
+                        <small class="text-muted">{{ message.date.strftime('%d.%m.%Y %H:%M') }}</small>
+                    </div>
+                    <p class="mb-0">{{ message.content }}</p>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">Henüz mesaj bulunmuyor.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="{{ url_for('track_paper') }}" class="btn btn-secondary">Yeni Sorgu</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

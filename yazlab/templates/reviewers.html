@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Hakemler</h2>
+                <div>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                        <i class="fas fa-home"></i> Ana Sayfa
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Tüm Hakemler</h5>
+                </div>
+                <div class="card-body">
+                    {% if reviewers %}
+                        <div class="row row-cols-1 row-cols-md-3 g-4">
+                            {% for reviewer in reviewers %}
+                                <div class="col">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ reviewer.first_name }} {{ reviewer.last_name }}</h5>
+                                            <p class="card-text">
+                                                <small class="text-muted">{{ reviewer.institution }}</small>
+                                            </p>
+                                            <div class="mb-3">
+                                                {% for area in reviewer.expertise_areas %}
+                                                    <span class="badge bg-info me-1">{{ area.main_category }} - {{ area.sub_category }}</span>
+                                                {% endfor %}
+                                            </div>
+                                            <a href="{{ url_for('reviewer_dashboard', reviewer_id=reviewer.id) }}" class="btn btn-primary">
+                                                <i class="fas fa-user"></i> Hakem Sayfası
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">Sistemde kayıtlı hakem bulunmamaktadır.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

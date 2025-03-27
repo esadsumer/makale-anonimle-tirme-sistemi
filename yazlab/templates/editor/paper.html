@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2>Makale İnceleme</h2>
+            <p class="text-muted">Takip No: {{ paper.tracking_number }}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Makale Bilgileri -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Makale Bilgileri</h5>
+                </div>
+                <div class="card-body">
+                    <h4>{{ paper.title }}</h4>
+                    <p><strong>Özet:</strong> {{ paper.abstract }}</p>
+                    
+                    <!-- Alan ve Anahtar Kelimeler Formu -->
+                    <form method="POST" class="mb-4">
+                        <input type="hidden" name="action" value="assign_field">
+                        <div class="mb-3">
+                            <label for="field" class="form-label">Makale Alanı</label>
+                            <input type="text" class="form-control" id="field" name="field" value="{{ paper.field or '' }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="keywords" class="form-label">Anahtar Kelimeler</label>
+                            <input type="text" class="form-control" id="keywords" name="keywords" value="{{ paper.keywords or '' }}" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Alan ve Anahtar Kelimeleri Güncelle</button>
+                    </form>
+
+                    <!-- Yazar Bilgileri -->
+                    {% if author_info %}
+                    <div class="mb-4">
+                        <h5>Yazar ve Kurum Bilgileri</h5>
+                        <div class="card">
+                            <div class="card-body">
+                                <h6>Yazarlar:</h6>
+                                <ul>
+                                    {% for author in author_info.authors %}
+                                    <li>{{ author }}</li>
+                                    {% endfor %}
+                                </ul>
+                                <h6>Kurumlar:</h6>
+                                <ul>
+                                    {% for institution in author_info.institutions %}
+                                    <li>{{ institution }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Anonimleştirme Formu -->
+                    {% if not paper.anonymized_file_path %}
+                    <form method="POST" class="mb-4">
+                        <input type="hidden" name="action" value="anonymize">
+                        <h5>Anonimleştirme</h5>
+                        <div class="mb-3">
+                            <label class="form-label">Anonimleştirilecek Bilgiler</label>
+                            {% if author_info %}
+                                {% for author in author_info.authors %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="info_to_anonymize" value="{{ author }}" id="author_{{ loop.index }}">
+                                    <label class="form-check-label" for="author_{{ loop.index }}">
+                                        {{ author }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                                {% for institution in author_info.institutions %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="info_to_anonymize" value="{{ institution }}" id="institution_{{ loop.index }}">
+                                    <label class="form-check-label" for="institution_{{ loop.index }}">
+                                        {{ institution }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-warning">Makaleyi Anonimleştir</button>
+                    </form>
+                    {% endif %}
+
+                    <!-- Hakem Atama Formu -->
+                    {% if paper.anonymized_file_path and paper.status == 'pending' %}
+                    <form method="POST" class="mb-4">
+                        <input type="hidden" name="action" value="assign_reviewer">
+                        <h5>Hakem Atama</h5>
+                        <div class="mb-3">
+                            <label for="reviewer_id" class="form-label">Hakem Seçin</label>
+                            <select class="form-select" id="reviewer_id" name="reviewer_id" required>
+                                <option value="">Hakem seçin...</option>
+                                {% for reviewer in reviewers %}
+                                <option value="{{ reviewer.id }}">{{ reviewer.username }} ({{ reviewer.expertise }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success">Hakem Ata</button>
+                    </form>
+                    {% endif %}
+
+                    <!-- Değerlendirmeler -->
+                    {% if paper.reviews %}
+                    <div class="mb-4">
+                        <h5>Değerlendirmeler</h5>
+                        {% for review in paper.reviews %}
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">Hakem: {{ review.reviewer.username }}</h6>
+                                    <span class="badge bg-{{ 'success' if review.is_final else 'warning' }}">
+                                        {{ 'Onaylandı' if review.is_final else 'Beklemede' }}
+                                    </span>
+                                </div>
+                                <p class="mb-1"><strong>Puan:</strong> {{ review.rating }}/5</p>
+                                <p class="mb-1"><strong>Yorum:</strong> {{ review.comment }}</p>
+                                <small class="text-muted">Gönderim Tarihi: {{ review.submission_date.strftime('%Y-%m-%d') }}</small>
+                                {% if not review.is_final %}
+                                <form method="POST" action="{{ url_for('finalize_review', review_id=review.id) }}" class="mt-2">
+                                    <button type="submit" class="btn btn-sm btn-success">Değerlendirmeyi Onayla</button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Makale Dosyası -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Makale Dosyası</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('editor_download_paper', paper_id=paper.id) }}" class="btn btn-primary">
+                            {% if paper.anonymized_file_path %}
+                            Anonimleştirilmiş Makaleyi İndir
+                            {% else %}
+                            Orijinal Makaleyi İndir
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Durum Bilgisi -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Durum Bilgisi</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Durum:</strong> 
+                        <span class="badge bg-{{ 'success' if paper.status == 'accepted' else 'warning' if paper.status == 'under_review' else 'danger' if paper.status == 'rejected' else 'secondary' }}">
+                            {% if paper.status == 'accepted' %}
+                                Kabul Edildi
+                            {% elif paper.status == 'under_review' %}
+                                Değerlendiriliyor
+                            {% elif paper.status == 'rejected' %}
+                                Reddedildi
+                            {% elif paper.status == 'revision_required' %}
+                                Revizyon Gerekli
+                            {% else %}
+                                Beklemede
+                            {% endif %}
+                        </span>
+                    </p>
+                    <p><strong>Gönderim Tarihi:</strong> {{ paper.submission_date.strftime('%Y-%m-%d') }}</p>
+                    <p><strong>Revizyon Sayısı:</strong> {{ paper.revision_count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2>Makale Değerlendirme</h2>
+            <p class="text-muted">Takip No: {{ paper.tracking_number }}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Makale Bilgileri -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Makale Bilgileri</h5>
+                </div>
+                <div class="card-body">
+                    <h4>{{ paper.title }}</h4>
+                    <p><strong>Alan:</strong> {{ paper.field or 'Belirlenmedi' }}</p>
+                    <p><strong>Anahtar Kelimeler:</strong> {{ paper.keywords or 'Belirlenmedi' }}</p>
+                    <p><strong>Özet:</strong> {{ paper.abstract }}</p>
+                </div>
+            </div>
+
+            <!-- Değerlendirme Formu -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Değerlendirme</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Puan (1-5)</label>
+                            <select class="form-select" id="rating" name="rating" required>
+                                <option value="">Puan seçin...</option>
+                                <option value="1">1 - Çok Zayıf</option>
+                                <option value="2">2 - Zayıf</option>
+                                <option value="3">3 - Orta</option>
+                                <option value="4">4 - İyi</option>
+                                <option value="5">5 - Çok İyi</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="comment" class="form-label">Değerlendirme Yorumu</label>
+                            <textarea class="form-control" id="comment" name="comment" rows="5" required></textarea>
+                            <div class="form-text">
+                                Lütfen makalenin güçlü ve zayıf yönlerini, önerilerinizi ve varsa düzeltilmesi gereken noktaları belirtin.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="recommendation" class="form-label">Öneri</label>
+                            <select class="form-select" id="recommendation" name="recommendation" required>
+                                <option value="">Öneri seçin...</option>
+                                <option value="accept">Kabul Et</option>
+                                <option value="minor_revision">Küçük Revizyon</option>
+                                <option value="major_revision">Büyük Revizyon</option>
+                                <option value="reject">Reddet</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Değerlendirmeyi Gönder</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Makale Dosyası -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Makale Dosyası</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('reviewer_download_paper', paper_id=paper.id) }}" class="btn btn-primary">
+                            Anonimleştirilmiş Makaleyi İndir
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Değerlendirme Kriterleri -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Değerlendirme Kriterleri</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <strong>1 - Çok Zayıf:</strong>
+                            <ul>
+                                <li>Önemli metodolojik hatalar</li>
+                                <li>Yetersiz literatür taraması</li>
+                                <li>Belirsiz sonuçlar</li>
+                            </ul>
+                        </li>
+                        <li class="mb-2">
+                            <strong>2 - Zayıf:</strong>
+                            <ul>
+                                <li>Bazı metodolojik sorunlar</li>
+                                <li>Eksik literatür taraması</li>
+                                <li>Zayıf analiz</li>
+                            </ul>
+                        </li>
+                        <li class="mb-2">
+                            <strong>3 - Orta:</strong>
+                            <ul>
+                                <li>Kabul edilebilir metodoloji</li>
+                                <li>Yeterli literatür taraması</li>
+                                <li>Orta düzey analiz</li>
+                            </ul>
+                        </li>
+                        <li class="mb-2">
+                            <strong>4 - İyi:</strong>
+                            <ul>
+                                <li>Güçlü metodoloji</li>
+                                <li>Kapsamlı literatür taraması</li>
+                                <li>İyi analiz</li>
+                            </ul>
+                        </li>
+                        <li class="mb-2">
+                            <strong>5 - Çok İyi:</strong>
+                            <ul>
+                                <li>Mükemmel metodoloji</li>
+                                <li>Çok kapsamlı literatür taraması</li>
+                                <li>Mükemmel analiz</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

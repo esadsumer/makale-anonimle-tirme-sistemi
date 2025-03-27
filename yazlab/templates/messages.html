@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Mesajlar</h2>
+    
+    {% if messages %}
+        <div class="list-group">
+            {% for message in messages %}
+                <div class="list-group-item {% if not message.is_read %}list-group-item-light{% endif %}">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">{{ message.paper.title }}</h6>
+                        <small>{{ message.date.strftime('%d.%m.%Y %H:%M') }}</small>
+                    </div>
+                    <p class="mb-1">{{ message.content }}</p>
+                    <small>Gönderen: {{ message.sender_email }}</small>
+                    <div class="mt-2">
+                        <small class="text-muted">Takip No: {{ message.paper.tracking_number }}</small>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Henüz mesaj bulunmuyor.
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

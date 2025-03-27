@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Makale Değerlendirme</h2>
+    
+    {% if not paper.reviews or not paper.reviews[0].reviewer_id %}
+        <div class="alert alert-warning">
+            Bu makale henüz size atanmamış. Lütfen editörün makaleyi size atamasını bekleyin.
+        </div>
+    {% else %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{{ paper.title }}</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Yazarlar:</strong> {{ paper.authors }}</p>
+                <p><strong>Kurum:</strong> {{ paper.institution }}</p>
+                <p><strong>Takip Numarası:</strong> {{ paper.tracking_number }}</p>
+            </div>
+        </div>
+
+        <form method="POST" class="needs-validation" novalidate>
+            {{ form.hidden_tag() }}
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Değerlendirme Kriterleri</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ form.technical_quality.label(class="form-label") }}
+                        {{ form.technical_quality(class="form-select") }}
+                        {% if form.technical_quality.errors %}
+                            {% for error in form.technical_quality.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.methodology.label(class="form-label") }}
+                        {{ form.methodology(class="form-select") }}
+                        {% if form.methodology.errors %}
+                            {% for error in form.methodology.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.contribution.label(class="form-label") }}
+                        {{ form.contribution(class="form-select") }}
+                        {% if form.contribution.errors %}
+                            {% for error in form.contribution.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.presentation.label(class="form-label") }}
+                        {{ form.presentation(class="form-select") }}
+                        {% if form.presentation.errors %}
+                            {% for error in form.presentation.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Değerlendirme Notları</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ form.comments.label(class="form-label") }}
+                        {{ form.comments(class="form-control", rows="5") }}
+                        {% if form.comments.errors %}
+                            {% for error in form.comments.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.confidential_comments.label(class="form-label") }}
+                        {{ form.confidential_comments(class="form-control", rows="5") }}
+                        {% if form.confidential_comments.errors %}
+                            {% for error in form.confidential_comments.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.recommendation.label(class="form-label") }}
+                        {{ form.recommendation(class="form-select") }}
+                        {% if form.recommendation.errors %}
+                            {% for error in form.recommendation.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                {{ form.submit(class="btn btn-primary") }}
+                <a href="{{ url_for('reviewer_dashboard') }}" class="btn btn-secondary">Geri Dön</a>
+            </div>
+        </form>
+    {% endif %}
+</div>
+{% endblock %} 

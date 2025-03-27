@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Hakem Paneli</h2>
+    
+    {% if reviewer %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Hakem Bilgileri</h5>
+                <p class="card-text">
+                    <strong>Ad Soyad:</strong> {{ reviewer.first_name }} {{ reviewer.last_name }}<br>
+                    <strong>E-posta:</strong> {{ reviewer.email }}<br>
+                    <strong>Kurum:</strong> {{ reviewer.institution }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Bekleyen Değerlendirmeler -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Bekleyen Değerlendirmeler</h5>
+            </div>
+            <div class="card-body">
+                {% if pending_reviews %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Takip No</th>
+                                    <th>Başlık</th>
+                                    <th>Gönderim Tarihi</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for paper in pending_reviews %}
+                                <tr>
+                                    <td><code>{{ paper.tracking_number }}</code></td>
+                                    <td>{{ paper.title }}</td>
+                                    <td>{{ paper.submission_date.strftime('%d.%m.%Y') }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('download_paper', paper_id=paper.id) }}" 
+                                               class="btn btn-sm btn-primary">
+                                                <i class="fas fa-download"></i> Makaleyi İndir
+                                            </a>
+                                            <a href="{{ url_for('review_paper', paper_id=paper.id) }}" 
+                                               class="btn btn-sm btn-success">
+                                                <i class="fas fa-edit"></i> Değerlendir
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Bekleyen değerlendirme bulunmuyor.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Tamamlanan Değerlendirmeler -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Tamamlanan Değerlendirmeler</h5>
+            </div>
+            <div class="card-body">
+                {% if completed_reviews %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Takip No</th>
+                                    <th>Başlık</th>
+                                    <th>Değerlendirme Tarihi</th>
+                                    <th>Öneri</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for paper in completed_reviews %}
+                                <tr>
+                                    <td><code>{{ paper.tracking_number }}</code></td>
+                                    <td>{{ paper.title }}</td>
+                                    <td>{{ paper.reviews[0].review_date.strftime('%d.%m.%Y') }}</td>
+                                    <td>
+                                        {% if paper.reviews[0].recommendation == 'accept' %}
+                                            <span class="badge bg-success">Kabul</span>
+                                        {% elif paper.reviews[0].recommendation == 'minor_revision' %}
+                                            <span class="badge bg-warning">Küçük Revizyon</span>
+                                        {% elif paper.reviews[0].recommendation == 'major_revision' %}
+                                            <span class="badge bg-info">Büyük Revizyon</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Red</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('download_paper', paper_id=paper.id) }}" 
+                                               class="btn btn-sm btn-primary">
+                                                <i class="fas fa-download"></i> Makaleyi İndir
+                                            </a>
+                                            <a href="{{ url_for('review_paper', paper_id=paper.id) }}" 
+                                               class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i> Değerlendirmeyi Görüntüle
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Tamamlanan değerlendirme bulunmuyor.</p>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Hakemler</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for reviewer in reviewers %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ reviewer.first_name }} {{ reviewer.last_name }}</h5>
+                                <p class="card-text">
+                                    <strong>E-posta:</strong> {{ reviewer.email }}<br>
+                                    <strong>Kurum:</strong> {{ reviewer.institution }}<br>
+                                    <strong>Uzmanlık Alanları:</strong><br>
+                                    {% for area in reviewer.expertise_areas %}
+                                        - {{ area.main_category }} - {{ area.sub_category }}<br>
+                                    {% endfor %}
+                                </p>
+                                <a href="{{ url_for('reviewer_dashboard_detail', reviewer_id=reviewer.id) }}" 
+                                   class="btn btn-primary">
+                                    <i class="fas fa-user"></i> Panele Git
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

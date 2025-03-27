@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3>Makale Detayları</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Takip Numarası:</strong> {{ paper.tracking_number }}</p>
+                    <p><strong>Başlık:</strong> {{ paper.title }}</p>
+                    <p><strong>Yazarlar:</strong> {{ paper.authors }}</p>
+                    <p><strong>Kurum:</strong> {{ paper.institution }}</p>
+                    <p><strong>Durum:</strong> {{ paper.status }}</p>
+                    <p><strong>Gönderim Tarihi:</strong> {{ paper.submission_date.strftime('%d.%m.%Y %H:%M') }}</p>
+                    <p><strong>Son Güncelleme:</strong> {{ paper.last_update.strftime('%d.%m.%Y %H:%M') if paper.last_update else 'Henüz güncelleme yok' }}</p>
+                    <p><strong>Gönderen E-posta:</strong> {{ paper.submitter_email }}</p>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-end mb-3">
+                        <a href="{{ url_for('download_paper', paper_id=paper.id) }}" class="btn btn-primary">
+                            <i class="fas fa-download"></i> Makaleyi İndir
+                        </a>
+                    </div>
+                    {% if current_user.role == 'admin' %}
+                    <div class="d-flex justify-content-end mb-3">
+                        <a href="{{ url_for('download_original_paper', paper_id=paper.id) }}" class="btn btn-info">
+                            <i class="fas fa-file-pdf"></i> Orijinal Makaleyi İndir
+                        </a>
+                    </div>
+                    <div class="d-flex justify-content-end mb-3">
+                        <form action="{{ url_for('anonymize_paper', paper_id=paper.id) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-user-secret"></i> Makaleyi Anonimleştir
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if current_user.role == 'admin' %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3>Makale Durumu Güncelle</h3>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('update_paper_status', paper_id=paper.id) }}" method="POST">
+                <div class="form-group">
+                    <label for="status">Durum:</label>
+                    <select name="status" id="status" class="form-control">
+                        <option value="Beklemede" {% if paper.status == 'Beklemede' %}selected{% endif %}>Beklemede</option>
+                        <option value="Değerlendirmede" {% if paper.status == 'Değerlendirmede' %}selected{% endif %}>Değerlendirmede</option>
+                        <option value="Revizyon Beklemede" {% if paper.status == 'Revizyon Beklemede' %}selected{% endif %}>Revizyon Beklemede</option>
+                        <option value="Kabul" {% if paper.status == 'Kabul' %}selected{% endif %}>Kabul</option>
+                        <option value="Red" {% if paper.status == 'Red' %}selected{% endif %}>Red</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Durumu Güncelle</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3>Hakem Atama</h3>
+        </div>
+        <div class="card-body">
+            {% if current_reviewer %}
+            <div class="alert alert-info">
+                <strong>Mevcut Hakem:</strong> {{ current_reviewer.first_name }} {{ current_reviewer.last_name }}
+                <form action="{{ url_for('remove_reviewer', paper_id=paper.id, reviewer_id=current_reviewer.id) }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-sm ml-2">Hakemi Kaldır</button>
+                </form>
+            </div>
+            {% endif %}
+            
+            <form action="{{ url_for('assign_reviewer', paper_id=paper.id) }}" method="POST">
+                <div class="form-group">
+                    <label for="reviewer_id">Hakem Seç:</label>
+                    <select name="reviewer_id" id="reviewer_id" class="form-control" required>
+                        <option value="">Hakem seçin...</option>
+                        {% for reviewer in reviewers %}
+                        <option value="{{ reviewer.id }}">{{ reviewer.first_name }} {{ reviewer.last_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Hakem Ata</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3>Mesajlar</h3>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('send_message') }}" method="POST">
+                <input type="hidden" name="tracking_number" value="{{ paper.tracking_number }}">
+                <input type="hidden" name="email" value="{{ paper.submitter_email }}">
+                <div class="form-group">
+                    <label for="message">Mesajınız:</label>
+                    <textarea name="message" id="message" class="form-control" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Mesaj Gönder</button>
+            </form>
+
+            <div class="mt-4">
+                <h4>Mesaj Geçmişi</h4>
+                {% for message in paper.messages %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <p class="card-text">{{ message.content }}</p>
+                        <small class="text-muted">
+                            Gönderen: {{ message.sender_email }} | 
+                            Tarih: {{ message.date.strftime('%d.%m.%Y %H:%M') }}
+                        </small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
